@@ -1,0 +1,280 @@
+basePath: /api/v1
+definitions:
+  domain.Booking:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      comment:
+        type: string
+      created_at:
+        type: string
+      guest_name:
+        type: string
+      id:
+        type: string
+      room:
+        $ref: '#/definitions/domain.Room'
+      room_id:
+        type: string
+      status:
+        $ref: '#/definitions/domain.BookingStatus'
+      user_id:
+        type: string
+    type: object
+  domain.BookingStatus:
+    enum:
+    - pending
+    - confirmed
+    - rejected
+    - pending_edit
+    type: string
+    x-enum-varnames:
+    - StatusPending
+    - StatusConfirmed
+    - StatusRejected
+    - StatusPendingEdit
+  domain.ChangeStatusRequest:
+    properties:
+      status:
+        $ref: '#/definitions/domain.BookingStatus'
+    required:
+    - status
+    type: object
+  domain.CreateBookingRequest:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      comment:
+        type: string
+      room_id:
+        type: string
+    required:
+    - check_in
+    - check_out
+    - room_id
+    type: object
+  domain.Room:
+    properties:
+      capacity:
+        type: integer
+      description:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  domain.UpdateBookingRequest:
+    properties:
+      check_in:
+        type: string
+      check_out:
+        type: string
+      comment:
+        type: string
+    required:
+    - check_in
+    - check_out
+    type: object
+host: localhost:8082
+info:
+  contact: {}
+  description: Room and booking management microservice for Hotel Booking App
+  title: Booking Service API
+  version: "1.0"
+paths:
+  /bookings:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Booking'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get all bookings (admin)
+      tags:
+      - bookings
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Booking payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.CreateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Booking'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a booking
+      tags:
+      - bookings
+  /bookings/{id}:
+    delete:
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a booking
+      tags:
+      - bookings
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.UpdateBookingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Booking'
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: 'Edit a booking (client: sets pending_edit)'
+      tags:
+      - bookings
+  /bookings/{id}/status:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Booking ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/domain.ChangeStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Booking'
+      security:
+      - BearerAuth: []
+      summary: Change booking status (admin)
+      tags:
+      - bookings
+  /bookings/my:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Booking'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Get current user bookings
+      tags:
+      - bookings
+  /rooms:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Room'
+            type: array
+      summary: List all rooms
+      tags:
+      - rooms
+  /rooms/{id}:
+    get:
+      parameters:
+      - description: Room ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Room'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get room by ID
+      tags:
+      - rooms
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
