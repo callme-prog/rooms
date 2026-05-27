@@ -1,0 +1,27 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Booking Service API for Hotel Booking Application",
+    "title": "Booking Service API",
+    "version": "1.0"
+  },
+  "host": "localhost:8082",
+  "basePath": "/api/v1",
+  "securityDefinitions": {
+    "BearerAuth": { "type": "apiKey", "name": "Authorization", "in": "header" }
+  },
+  "paths": {
+    "/rooms": { "get": { "tags": ["rooms"], "summary": "List all rooms", "responses": { "200": { "description": "OK" } } } },
+    "/rooms/{id}": { "get": { "tags": ["rooms"], "summary": "Get room by ID", "parameters": [{ "name": "id", "in": "path", "required": true, "type": "string" }], "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } } } },
+    "/bookings": {
+      "post": { "tags": ["bookings"], "summary": "Create booking", "security": [{"BearerAuth":[]}], "responses": { "201": { "description": "Created" } } },
+      "get":  { "tags": ["bookings"], "summary": "Get all bookings (admin)", "security": [{"BearerAuth":[]}], "responses": { "200": { "description": "OK" } } }
+    },
+    "/bookings/my": { "get": { "tags": ["bookings"], "summary": "Get my bookings", "security": [{"BearerAuth":[]}], "responses": { "200": { "description": "OK" } } } },
+    "/bookings/{id}": {
+      "put":    { "tags": ["bookings"], "summary": "Edit booking (sets pending_edit)", "security": [{"BearerAuth":[]}], "responses": { "200": { "description": "OK" } } },
+      "delete": { "tags": ["bookings"], "summary": "Delete booking", "security": [{"BearerAuth":[]}], "responses": { "204": { "description": "No Content" } } }
+    },
+    "/bookings/{id}/status": { "patch": { "tags": ["bookings"], "summary": "Change booking status (admin)", "security": [{"BearerAuth":[]}], "responses": { "200": { "description": "OK" } } } }
+  }
+}

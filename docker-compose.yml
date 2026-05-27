@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+
+  postgres-auth:
+    image: postgres:16-alpine
+    container_name: hotel_auth_db
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:       authdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - auth_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-booking:
+    image: postgres:16-alpine
+    container_name: hotel_booking_db
+    environment:
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB:       bookingdb
+    ports:
+      - "5434:5432"
+    volumes:
+      - booking_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: hotel_auth_service
+    environment:
+      HTTP_PORT:       "8081"
+      DATABASE_URL:    "postgres://postgres:postgres@postgres-auth:5432/authdb?sslmode=disable"
+      JWT_SECRET:      "change-me-in-production-please"
+      MIGRATIONS_PATH: "file://migrations"
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+
+  booking-service:
+    build:
+      context: ./booking-service
+    container_name: hotel_booking_service
+    environment:
+      HTTP_PORT:       "8082"
+      DATABASE_URL:    "postgres://postgres:postgres@postgres-booking:5432/bookingdb?sslmode=disable"
+      JWT_SECRET:      "change-me-in-production-please"
+      MIGRATIONS_PATH: "file://migrations"
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres-booking:
+        condition: service_healthy
+
+volumes:
+  auth_pgdata:
+  booking_pgdata:

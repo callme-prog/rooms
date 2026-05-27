@@ -1,0 +1,19 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "JWT-based authentication microservice for Hotel Booking App",
+        "title": "Auth Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8081",
+    "basePath": "/api/v1",
+    "paths": {},
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

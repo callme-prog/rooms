@@ -1,0 +1,84 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Auth Service API for Hotel Booking Application",
+    "title": "Auth Service API",
+    "contact": {},
+    "version": "1.0"
+  },
+  "host": "localhost:8081",
+  "basePath": "/api/v1",
+  "schemes": ["http"],
+  "securityDefinitions": {
+    "BearerAuth": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Register a new user",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body", "name": "body",
+          "schema": { "$ref": "#/definitions/RegisterRequest" }
+        }],
+        "responses": {
+          "201": { "description": "Created" },
+          "400": { "description": "Bad Request" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login",
+        "consumes": ["application/json"],
+        "produces": ["application/json"],
+        "parameters": [{
+          "in": "body", "name": "body",
+          "schema": { "$ref": "#/definitions/LoginRequest" }
+        }],
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "Get current user",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": { "description": "OK" },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "RegisterRequest": {
+      "type": "object",
+      "required": ["name","email","password"],
+      "properties": {
+        "name":     { "type": "string" },
+        "email":    { "type": "string" },
+        "password": { "type": "string", "minLength": 6 }
+      }
+    },
+    "LoginRequest": {
+      "type": "object",
+      "required": ["email","password"],
+      "properties": {
+        "email":    { "type": "string" },
+        "password": { "type": "string" }
+      }
+    }
+  }
+}
